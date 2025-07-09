@@ -6,7 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3000"
+      - "80:3000"  # ✅ Coolify va rediriger le domaine vers ce port
     volumes:
       - ./backend/uploads:/app/uploads
     environment:
@@ -17,6 +17,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5000"  # ✅ évite le conflit avec le port 80
+      - "80:5000"  # ✅ pareil ici pour un sous-domaine propre sans port
     environment:
       NODE_ENV: production
