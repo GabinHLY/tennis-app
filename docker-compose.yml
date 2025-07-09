@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3015:3000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    environment:
+      NODE_ENV: production
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5000"  # ✅ évite le conflit avec le port 80
+    environment:
+      NODE_ENV: production
