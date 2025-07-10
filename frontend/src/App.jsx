@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-const API_URL = "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const ADMIN_PASSWORD = "tennisadmin"; // à changer si besoin
 
 // Tennis ball SVG as data URL
@@ -274,7 +274,7 @@ function App() {
                     <div key={t.id} className="flex flex-col md:flex-row items-center justify-center gap-3 w-full">
                       <span className="font-semibold text-black text-lg">Terrain {t.numero}</span>
                       <span className="font-semibold text-black text-base bg-yellow-200 rounded-full px-4 py-1 mx-2">{t.occupe ? "Occupé" : "Libre"}</span>
-                      <button onClick={async () => { await fetch(`${API_URL}/terrains/${t.id}/occupation`, { method: "POST" }); fetchComplexes(); }} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6 py-2 rounded-full shadow-lg text-lg flex items-center gap-2 transition-all animate-pulse hover:animate-none"><span role="img" aria-label="tennis">��</span> {t.occupe ? "Check-out" : "Check-in"}</button>
+                      <button onClick={async () => { await fetch(`${API_URL}/terrains/${t.id}/occupation`, { method: "POST" }); fetchComplexes(); }} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6 py-2 rounded-full shadow-lg text-lg flex items-center gap-2 transition-all animate-pulse hover:animate-none"><span role="img" aria-label="tennis">🎾</span> {t.occupe ? "Check-out" : "Check-in"}</button>
                       <button onClick={async () => { if(window.confirm("Supprimer ce terrain ?")) { await fetch(`${API_URL}/admin/terrains/${t.id}`, { method: "DELETE" }); fetchComplexes(); } }} className="bg-yellow-200 hover:bg-yellow-300 text-black px-6 py-2 rounded-full shadow-lg text-lg transition-all">Supprimer</button>
                     </div>
                   ))}
