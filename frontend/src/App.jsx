@@ -136,95 +136,96 @@ function App() {
       }
     }
     return (
-      <div className="min-h-screen bg-white font-sans px-2 md:px-0 pb-8 flex flex-col items-center">
-        <div className="flex flex-col items-center mb-8 w-full">
-          <h1 className="text-5xl font-extrabold mt-10 mb-4 text-center text-black drop-shadow">🎾 Terrains de Tennis Gratuits</h1>
-          <p className="text-black text-xl mb-8 text-center max-w-2xl">Trouvez et partagez les terrains de tennis gratuits autour de vous. Ajoutez un complexe, signalez l’occupation, et aidez la communauté !</p>
+      <div className="min-h-screen flex flex-col items-center px-4 md:px-6 pb-10" style={{background: 'var(--color-bg-light)', color: 'var(--color-text-light)'}}>
+      <header className="tenko-header py-8 px-4">
+      <h1 className="tenko-header-title text-center text-6xl font-extrabold mb-4">🎾 TENKO</h1>
+      <p className="tenko-header-desc px-2 py-2">Trouvez et partagez les terrains de tennis gratuits autour de vous. Ajoutez un complexe, signalez l'occupation, et aidez la communauté !</p>
+      </header>
+      {/* Carte Leaflet */}
+      <div className="w-full max-w-4xl mx-auto mb-10 px-3" style={{ height: 400 }}>
+      <MapContainer center={center} zoom={6} style={{ height: 400, width: "100%", borderRadius: 24, boxShadow: "0 4px 24px #0002", border: `3px solid var(--color-accent)` }} scrollWheelZoom={true}>
+      <TileLayer
+        attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+      />
+      {lat && lng && showForm && (
+        <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={tennisBallIcon}>
+        <Popup><span className="font-bold text-lg text-center block p-2">Position du complexe</span></Popup>
+        </Marker>
+      )}
+      {complexes.map(c => (
+        <Marker key={c.id} position={[parseFloat(c.lat), parseFloat(c.lng)]} icon={tennisBallIcon}>
+        <Popup>
+        <div className="card-tenko text-center p-3">
+        <div className="tenko-title p-1">{c.nom}</div>
+        <div className="tenko-address p-1">{c.adresse}</div>
+        <div className="tenko-surface p-1">Surface : <span className="font-semibold">{c.surface}</span></div>
+        <div className="tenko-surface p-1">Nombre de terrains : <span className="font-semibold">{c.nombre_terrains}</span></div>
         </div>
-        {/* Carte Leaflet */}
-        <div className="w-full max-w-4xl mx-auto mb-10" style={{ height: 400 }}>
-          <MapContainer center={center} zoom={6} style={{ height: 400, width: "100%", borderRadius: 24, boxShadow: "0 4px 24px #0002", border: "3px solid #fde047" }} scrollWheelZoom={true}>
-            <TileLayer
-              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
-            />
-            {lat && lng && showForm && (
-              <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={tennisBallIcon}>
-                <Popup><span className="font-bold text-black text-lg text-center block">Position du complexe</span></Popup>
-              </Marker>
-            )}
-            {complexes.map(c => (
-              <Marker key={c.id} position={[parseFloat(c.lat), parseFloat(c.lng)]} icon={tennisBallIcon}>
-                <Popup>
-                  <div className="p-4 bg-white rounded-xl border border-yellow-300 text-center">
-                    <div className="font-bold text-black text-2xl mb-2">{c.nom}</div>
-                    <div className="text-base text-black mb-1">{c.adresse}</div>
-                    <div className="text-base text-black mb-1">Surface : <span className="font-semibold">{c.surface}</span></div>
-                    <div className="text-base text-black mb-1">Nombre de terrains : <span className="font-semibold">{c.nombre_terrains}</span></div>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
+        </Popup>
+        </Marker>
+      ))}
+      </MapContainer>
+      </div>
+      <div className="flex justify-center mb-8 w-full px-4">
+      <button onClick={() => setShowForm(f => !f)} className="tenko-btn-main mx-auto block w-full max-w-md py-4 px-6">
+      {showForm ? "Annuler" : "+ Ajouter un complexe"}
+      </button>
+      </div>
+      {showForm && (
+      <form onSubmit={handleAdd} className="card-tenko flex flex-col gap-5 max-w-md mx-auto mb-10 items-center p-6">
+      <label className="font-semibold w-full text-center py-1">Nom du complexe</label>
+      <input required value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du complexe" className="p-4 border border-[var(--color-border-light)] rounded-lg bg-white text-black focus:ring-2 focus:ring-[var(--color-accent)] outline-none w-full text-center text-lg" />
+      <label className="font-semibold w-full text-center py-1">Adresse</label>
+      <div className="flex gap-2 items-center w-full justify-center">
+        <input required value={adresse} onChange={e => setAdresse(e.target.value)} placeholder="Adresse" className="p-4 border border-[var(--color-border-light)] rounded-lg bg-white text-black flex-1 focus:ring-2 focus:ring-[var(--color-accent)] outline-none text-center text-lg" />
+        <button type="button" onClick={handleGeocode} className="tenko-btn-main px-5 py-3 text-base" disabled={geocodeLoading || !adresse}>
+        {geocodeLoading ? "..." : "Localiser"}
+        </button>
+      </div>
+      {geocodeError && <div className="text-base text-center py-3 px-5" style={{background: 'var(--color-danger)', color: 'var(--color-bg-light)', borderRadius: 12}}>{geocodeError}</div>}
+      <label className="font-semibold w-full text-center py-1">Surface</label>
+      <input required value={surface} onChange={e => setSurface(e.target.value)} placeholder="Surface (béton, terre battue...)" className="p-4 border border-[var(--color-border-light)] rounded-lg bg-white text-black focus:ring-2 focus:ring-[var(--color-accent)] outline-none w-full text-center text-lg" />
+      <label className="font-semibold w-full text-center py-1">Nombre de terrains</label>
+      <input required value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre de terrains" className="p-4 border border-[var(--color-border-light)] rounded-lg bg-white text-black focus:ring-2 focus:ring-[var(--color-accent)] outline-none w-full text-center text-lg" type="number" min={1} />
+      {/* Champs lat/lng cachés mais requis pour le backend */}
+      <input type="hidden" value={lat} name="lat" />
+      <input type="hidden" value={lng} name="lng" />
+      {lat && lng && (
+        <div className="text-base text-center py-3 px-5" style={{background: 'var(--color-accent)', color: 'var(--color-bg-dark)', borderRadius: 12}}>Position trouvée : {lat}, {lng}</div>
+      )}
+      <label className="font-semibold w-full text-center py-1">Photo (optionnel)</label>
+      <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files[0])} className="p-3 bg-white text-black rounded-lg w-full" />
+      <button type="submit" className="tenko-btn-main w-full mt-2 py-4 px-6" disabled={!lat || !lng}>Envoyer</button>
+      </form>
+      )}
+      {loading ? <div className="text-center text-xl py-6 px-4">Chargement...</div> : null}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 w-full justify-items-center px-4">
+      {complexes.map(c => (
+      <div key={c.id} className="card-tenko flex flex-col gap-5 items-center max-w-md mx-auto text-center animate-fade-in p-6">
+        <div className="tenko-title flex items-center gap-2 justify-center mb-2 px-3 py-2">
+        {c.nom}
         </div>
-        <div className="flex justify-center mb-8 w-full">
-          <button onClick={() => setShowForm(f => !f)} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4 rounded-full shadow-lg text-xl transition-all mx-auto block w-full max-w-md animate-pulse hover:animate-none">
-            {showForm ? "Annuler" : "Ajouter un complexe"}
+        <div className="tenko-address mb-1 px-3 py-1">{c.adresse}</div>
+        <div className="tenko-surface mb-1 px-3 py-1">Surface : <span className="font-semibold">{c.surface}</span></div>
+        <div className="tenko-surface mb-1 px-3 py-1">Nombre de terrains : <span className="font-semibold">{c.nombre_terrains}</span></div>
+        {c.photo && <img src={`${API_URL}/uploads/${c.photo}`} alt="complexe" className="w-full h-48 object-cover rounded-xl border shadow mb-2 mx-auto" style={{ objectPosition: 'center' }} />}
+        <div className="flex flex-col gap-3 mt-2 w-full px-2">
+        {c.terrains && c.terrains.map(t => (
+        <div key={t.id} className="flex flex-col md:flex-row items-center justify-center gap-3 w-full p-2">
+        <span className="font-semibold text-lg px-2">Terrain {t.numero}</span>
+        <span className="tenko-status mx-2 px-3 py-1">{t.occupe ? "Occupé" : "Libre"}</span>
+        <div className="tenko-actions px-2">
+          <button onClick={() => handleOccupation(t.id)} className="tenko-btn-main flex items-center gap-2 px-5 py-3">
+          <span role="img" aria-label="tennis">🎾</span> {t.occupe ? "Check-out" : "Check-in"}
           </button>
         </div>
-        {showForm && (
-          <form onSubmit={handleAdd} className="bg-[#fef9c3] border-2 border-yellow-300 p-8 rounded-2xl flex flex-col gap-5 max-w-md mx-auto mb-10 shadow-xl items-center">
-            <label className="font-semibold text-black w-full text-center">Nom du complexe</label>
-            <input required value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du complexe" className="p-4 border border-yellow-300 rounded-lg bg-white text-black focus:ring-2 focus:ring-yellow-300 outline-none w-full text-center text-lg" />
-            <label className="font-semibold text-black w-full text-center">Adresse</label>
-            <div className="flex gap-2 items-center w-full justify-center">
-              <input required value={adresse} onChange={e => setAdresse(e.target.value)} placeholder="Adresse" className="p-4 border border-yellow-300 rounded-lg bg-white text-black flex-1 focus:ring-2 focus:ring-yellow-300 outline-none text-center text-lg" />
-              <button type="button" onClick={handleGeocode} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-2 rounded-lg shadow disabled:opacity-50 text-lg" disabled={geocodeLoading || !adresse}>
-                {geocodeLoading ? "..." : "Localiser"}
-              </button>
-            </div>
-            {geocodeError && <div className="text-black text-base text-center py-2 px-4 bg-yellow-200 rounded-lg w-full">{geocodeError}</div>}
-            <label className="font-semibold text-black w-full text-center">Surface</label>
-            <input required value={surface} onChange={e => setSurface(e.target.value)} placeholder="Surface (béton, terre battue...)" className="p-4 border border-yellow-300 rounded-lg bg-white text-black focus:ring-2 focus:ring-yellow-300 outline-none w-full text-center text-lg" />
-            <label className="font-semibold text-black w-full text-center">Nombre de terrains</label>
-            <input required value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre de terrains" className="p-4 border border-yellow-300 rounded-lg bg-white text-black focus:ring-2 focus:ring-yellow-300 outline-none w-full text-center text-lg" type="number" min={1} />
-            {/* Champs lat/lng cachés mais requis pour le backend */}
-            <input type="hidden" value={lat} name="lat" />
-            <input type="hidden" value={lng} name="lng" />
-            {lat && lng && (
-              <div className="text-black text-base text-center py-2 px-4 bg-yellow-200 rounded-lg w-full">Position trouvée : {lat}, {lng}</div>
-            )}
-            <label className="font-semibold text-black w-full text-center">Photo (optionnel)</label>
-            <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files[0])} className="p-2 bg-white text-black rounded-lg w-full" />
-            <button type="submit" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-4 rounded-full shadow-lg text-xl mt-2 transition-all w-full animate-pulse hover:animate-none" disabled={!lat || !lng}>Envoyer</button>
-          </form>
-        )}
-        {loading ? <div className="text-center text-black text-xl py-4">Chargement...</div> : null}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 w-full justify-items-center">
-          {complexes.map(c => (
-            <div key={c.id} className="bg-[#fef9c3] rounded-2xl shadow-xl p-8 flex flex-col gap-5 border-2 border-yellow-300 hover:shadow-2xl transition-all items-center max-w-md mx-auto text-center animate-fade-in">
-              <div className="font-bold text-3xl text-black flex items-center gap-2 justify-center mb-2">
-                {c.nom}
-              </div>
-              <div className="text-lg text-black mb-1">{c.adresse}</div>
-              <div className="text-lg text-black mb-1">Surface : <span className="font-semibold">{c.surface}</span></div>
-              <div className="text-lg text-black mb-1">Nombre de terrains : <span className="font-semibold">{c.nombre_terrains}</span></div>
-              {c.photo && <img src={`${API_URL}/uploads/${c.photo}`} alt="complexe" className="w-full h-48 object-cover rounded-xl border shadow mb-2 mx-auto" style={{ objectPosition: 'center' }} />}
-              <div className="flex flex-col gap-3 mt-2 w-full">
-                {c.terrains && c.terrains.map(t => (
-                  <div key={t.id} className="flex flex-col md:flex-row items-center justify-center gap-3 w-full">
-                    <span className="font-semibold text-black text-lg">Terrain {t.numero}</span>
-                    <span className="font-semibold text-black text-base bg-yellow-200 rounded-full px-4 py-1 mx-2">{t.occupe ? "Occupé" : "Libre"}</span>
-                    <button onClick={() => handleOccupation(t.id)}
-                      className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6 py-2 rounded-full shadow-lg text-lg flex items-center gap-2 transition-all animate-pulse hover:animate-none">
-                      <span role="img" aria-label="tennis">🎾</span> {t.occupe ? "Check-out" : "Check-in"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
+        ))}
+        </div>
+      </div>
+      ))}
+      </div>
       </div>
     );
   }

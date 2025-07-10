@@ -1,24 +1,28 @@
-version: '3.8'
-
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev  # ← Dockerfile pour le dev
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    ports:
+      - "5000:5000"  # ← Tu gardes ton port habituel
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=${VITE_API_URL}
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"  # RESTE 3000 INTERNE, MAIS...
+      - "3001:3001"
     volumes:
       - ./backend/uploads:/app/uploads
     environment:
-      NODE_ENV: production
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}
-    ports:
-      - "5000:5000"  # RESTE 5000 INTERNE
-    environment:
-      NODE_ENV: production
+      - NODE_ENV=production
