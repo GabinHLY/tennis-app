@@ -6,7 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"  # RESTE 3000 INTERNE, MAIS...
+      - "3001:3001"  # RESTE 3000 INTERNE, MAIS...
     volumes:
       - ./backend/uploads:/app/uploads
     environment:
